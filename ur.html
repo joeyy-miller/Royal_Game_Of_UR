@@ -88,6 +88,7 @@
 		whitePlaces : Array(BOARD_SIZE).fill(false),
 		taken : Array(BOARD_SIZE).fill(false),
 		length : 15,
+		onSafe   : false,
 		selected : false,
 		selected_val : 0,
 		showMoves : function() {
@@ -249,9 +250,14 @@
 		},
 		place: function (space) {
 			let placed = false;
+			let rosette = false;
+			let safe = false;
 
+			if (space == 8 && this.onSafe)
+				safe = true;
+				
 			if (game.turn == "white") {
-				if (!this.selected) {
+				if (!this.selected || rosette || safe) {
 					// Not moving an puck
 					let max_forward = this.selected_val + dice.value
 					if (space <= max_forward ) {
@@ -297,7 +303,7 @@
 				}
 			}
 			if (game.turn == "black") {
-				if (!this.selected) {
+				if (!this.selected || rosette || safe) {
 					// Not moving an puck
 					let max_forward = dice.value
 					if (space <= max_forward ) {
@@ -344,12 +350,25 @@
 			}
 
 			if (placed == true) {
+				if (space != 4 && space != 8 && !space != 14 ) {
+					// Player has landed on a rosette, need to get another roll.
+					this.draw()
+					this.clearMoves()
+					game.toggleButton()
+					game.nextTurn()
+				} else {
+					if (space == 8)
+						this.onSafe == true
+					console.log('rosette!')
+					$("#playerColor").text("You've landed on a rosette, please roll again..")
+					game.toggleButton()
+					this.draw()
+					this.clearMoves()
+				}
+				
+				
 
 				
-				this.draw()
-				this.clearMoves()
-				game.toggleButton()
-				game.nextTurn()
 			}
 
 			if (space == 15){
@@ -604,18 +623,22 @@
 		height: 40px;
 		width: 40px;
 		display: inline-block;
-		border: 5px dashed black;
 	}
 	div.rosette {
 		border: 5px dotted black;
 	}
 
 	div.safe {
-		border: 5px solid black;
+		border: none;
 	}
 
 	div.home {
-		border: 5px dashed black;
+		border: none;
+	}
+	#board {
+		border: 5px double black;
+		padding: 3px 13px;
+		display: inline-block;
 	}
 
 </style>
@@ -639,9 +662,9 @@
 		<div class="col-sm-8">
 			<div id="board">
 				<div id="row1" class="row">
-					<div id="4white" class="space 1"></div>
+					<div id="4white" class="space 1 rosette"></div>
 					<div id="5both" class="space 2"></div>
-					<div id="4black" class="space 3"></div>
+					<div id="4black" class="space 3 rosette"></div>
 				</div>
 				<div id="row2" class="row">
 					<div id="3white" class="space 1"></div>
@@ -655,7 +678,7 @@
 				</div>
 				<div id="row6" class="row">
 					<div id="1white" class="space 1"></div>
-					<div id="8both" class="space 2"></div>
+					<div id="8both" class="space 2 rosette"></div>
 					<div id="1black" class="space 3"></div>
 				</div>
 				<div id="row3" class="row">
@@ -668,18 +691,18 @@
 					</div>
 				</div>
 				<div id="row4" class="row offset-row">
-					<div id="15white" class="black">
+					<div id="15white rosette" class="black">
 						<p><i class="fa-solid fa-flag-checkered"></i></p>
 					</div>
 					<div id="10both" class="space 2"></div>
-					<div id="15black" class="black">
+					<div id="15black " class="black">
 						<p><i class="fa-solid fa-flag-checkered"></i></p>
 					</div>
 				</div>
 				<div id="row7" class="row">
-					<div id="14white" class="space 1"></div>
+					<div id="14white" class="space 1 rosette"></div>
 					<div id="11both" class="space 2"></div>
-					<div id="14black" class="space 3"></div>
+					<div id="14black" class="space 3 rosette"></div>
 				</div>
 				<div id="row8" class="row">
 					<div id="13white" class="space 1"></div>
